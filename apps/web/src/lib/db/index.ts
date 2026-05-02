@@ -1,5 +1,7 @@
 import Database from 'better-sqlite3'
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
+import { drizzle as drizzleD1 } from 'drizzle-orm/d1'
+import { getCloudflareContext } from '@opennextjs/cloudflare'
 import * as schema from './schema'
 
 type AppDb = BetterSQLite3Database<typeof schema>
@@ -12,15 +14,13 @@ function getDb(): AppDb {
   // Cloudflare 环境：通过 getCloudflareContext 获取 D1 binding
   // Check if we're in Cloudflare Workers environment
   try {
-    // Dynamic imports to avoid bundling in local dev
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getCloudflareContext } = require('@opennextjs/cloudflare')
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { drizzle: drizzleD1 } = require('drizzle-orm/d1')
     const { env } = getCloudflareContext()
     // D1 drizzle API 兼容 better-sqlite3 drizzle API
-    _db = drizzleD1(env.DB, { schema }) as unknown as AppDb
-    return _db
+    const d1Database = (env as unknown as Record<string, unknown>).DB
+    if (d1Database) {
+      _db = drizzleD1(d1Database, { schema }) as unknown as AppDb
+      return _db
+    }
   } catch {
     // fallback to local sqlite
   }
