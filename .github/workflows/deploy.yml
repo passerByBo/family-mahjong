@@ -33,6 +33,12 @@ jobs:
         run: mv .open-next/worker.js .open-next/_worker.js
         working-directory: apps/web
 
+      - name: Move static assets to root for Cloudflare Pages
+        run: |
+          cp -r .open-next/assets/* .open-next/
+          rm -rf .open-next/assets
+        working-directory: apps/web
+
       - name: Deploy to Cloudflare Pages
         working-directory: apps/web
         env:
