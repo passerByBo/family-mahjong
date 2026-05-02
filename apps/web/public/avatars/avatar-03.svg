@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 兔子 - 粉色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#FFB6D9"/>
+  <!-- 耳朵 -->
+  <ellipse cx="38" cy="20" rx="8" ry="22" fill="#FFF" stroke="#FFB6D9" stroke-width="2"/>
+  <ellipse cx="38" cy="20" rx="4" ry="16" fill="#FFD4E5"/>
+  <ellipse cx="62" cy="20" rx="8" ry="22" fill="#FFF" stroke="#FFB6D9" stroke-width="2"/>
+  <ellipse cx="62" cy="20" rx="4" ry="16" fill="#FFD4E5"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="58" r="26" fill="#FFF"/>
+  <!-- 眼睛 -->
+  <circle cx="42" cy="54" r="4" fill="#3D3D3D"/>
+  <circle cx="58" cy="54" r="4" fill="#3D3D3D"/>
+  <circle cx="43.5" cy="52.5" r="1.5" fill="#FFF"/>
+  <circle cx="59.5" cy="52.5" r="1.5" fill="#FFF"/>
+  <!-- 鼻子 -->
+  <path d="M50,60 L47,64 L50,63 L53,64 Z" fill="#FFB6D9"/>
+  <!-- 嘴巴 -->
+  <path d="M50,63 Q45,66 42,64" fill="none" stroke="#3D3D3D" stroke-width="1" stroke-linecap="round"/>
+  <path d="M50,63 Q55,66 58,64" fill="none" stroke="#3D3D3D" stroke-width="1" stroke-linecap="round"/>
+  <!-- 门牙 -->
+  <rect x="47" y="65" width="3" height="4" fill="#FFF" rx="0.5"/>
+  <rect x="50" y="65" width="3" height="4" fill="#FFF" rx="0.5"/>
+  <!-- 胡须 -->
+  <line x1="30" y1="58" x2="40" y2="59" stroke="#C0C0C0" stroke-width="1"/>
+  <line x1="30" y1="62" x2="40" y2="62" stroke="#C0C0C0" stroke-width="1"/>
+  <line x1="60" y1="59" x2="70" y2="58" stroke="#C0C0C0" stroke-width="1"/>
+  <line x1="60" y1="62" x2="70" y2="62" stroke="#C0C0C0" stroke-width="1"/>
+</svg>

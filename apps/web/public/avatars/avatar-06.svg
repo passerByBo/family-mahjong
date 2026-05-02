@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 熊猫 - 绿色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#66BB6A"/>
+  <!-- 耳朵 -->
+  <circle cx="28" cy="28" r="12" fill="#3D3D3D"/>
+  <circle cx="72" cy="28" r="12" fill="#3D3D3D"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="55" r="28" fill="#FFF"/>
+  <!-- 眼圈 -->
+  <ellipse cx="38" cy="50" rx="10" ry="9" fill="#3D3D3D"/>
+  <ellipse cx="62" cy="50" rx="10" ry="9" fill="#3D3D3D"/>
+  <!-- 眼睛 -->
+  <circle cx="38" cy="50" r="4" fill="#FFF"/>
+  <circle cx="62" cy="50" r="4" fill="#FFF"/>
+  <circle cx="39.5" cy="49" r="1.5" fill="#3D3D3D"/>
+  <circle cx="63.5" cy="49" r="1.5" fill="#3D3D3D"/>
+  <!-- 鼻子 -->
+  <ellipse cx="50" cy="60" rx="4" ry="3" fill="#3D3D3D"/>
+  <!-- 嘴巴 -->
+  <path d="M47,63 Q50,66 53,63" fill="none" stroke="#3D3D3D" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 腮红 -->
+  <circle cx="30" cy="60" r="5" fill="#FFB6C1" opacity="0.5"/>
+  <circle cx="70" cy="60" r="5" fill="#FFB6C1" opacity="0.5"/>
+</svg>

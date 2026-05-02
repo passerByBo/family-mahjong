@@ -1,0 +1,106 @@
+'use client'
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { getAvatarById } from '@/lib/avatars'
+import { RefreshCw } from 'lucide-react'
+
+interface PlayerSeatProps {
+  player: { id: string; name: string; avatar: string }
+  score: number
+  totalScore?: number
+  isDealer: boolean
+  position: 'bottom' | 'right' | 'top' | 'left'
+  onKong?: () => void
+  onWin?: () => void
+  onSelfDraw?: () => void
+  onRemove?: () => void
+  onSwap?: () => void
+  showActions?: boolean
+}
+
+function formatScore(score: number): string {
+  if (score > 0) return `+${score}`
+  return `${score}`
+}
+
+function scoreColor(score: number): string {
+  if (score > 0) return 'text-green-500'
+  if (score < 0) return 'text-red-500'
+  return 'text-gray-400'
+}
+
+const positionStyles: Record<string, string> = {
+  bottom: 'flex-col items-center',
+  top: 'flex-col items-center',
+  left: 'flex-row items-center',
+  right: 'flex-row-reverse items-center',
+}
+
+export function PlayerSeat({ player, score, totalScore, isDealer, position, onKong, onWin, onSelfDraw, onRemove, onSwap, showActions }: PlayerSeatProps) {
+  const avatar = getAvatarById(player.avatar)
+  const isVertical = position === 'bottom' || position === 'top'
+
+  return (
+    <div className={`flex gap-1.5 ${positionStyles[position]}`}>
+      <div className="relative">
+        <Avatar className={`h-14 w-14 ${isDealer ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-emerald-800' : ''}`}>
+          <AvatarImage src={avatar?.path} alt={player.name} />
+          <AvatarFallback className="text-sm bg-emerald-600 text-white">
+            {player.name[0]}
+          </AvatarFallback>
+        </Avatar>
+        {isDealer && (
+          <span className="absolute -top-1 -right-1 text-xs bg-yellow-400 text-yellow-900 rounded-full w-5 h-5 flex items-center justify-center font-bold">
+            庄
+          </span>
+        )}
+        {onRemove && (
+          <button
+            onClick={onRemove}
+            className="absolute -top-1 -right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center font-bold cursor-pointer hover:bg-red-600"
+          >
+            ×
+          </button>
+        )}
+        {onSwap && (
+          <button
+            onClick={onSwap}
+            className="absolute -bottom-1 -right-1 bg-amber-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer hover:bg-amber-600 shadow-md"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+      <div className={`flex flex-col ${position === 'right' ? 'items-end' : position === 'left' ? 'items-start' : 'items-center'}`}>
+        <span className="text-white text-sm font-medium truncate max-w-[4rem]">{player.name}</span>
+        <span className={`text-sm font-bold ${scoreColor(score)}`}>
+          {formatScore(score)}
+        </span>
+        {totalScore !== undefined && totalScore !== 0 && (
+          <span className={`text-xs ${scoreColor(totalScore)} opacity-70`}>
+            总{formatScore(totalScore)}
+          </span>
+        )}
+        {showActions && (onKong || onWin || onSelfDraw) && (
+          <div className={`flex gap-1.5 mt-1.5 ${isVertical ? 'flex-row' : 'flex-col'}`}>
+            {onKong && (
+              <button onClick={onKong} className="bg-blue-600 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-blue-700 shadow-md active:scale-95 transition-transform">
+                杠
+              </button>
+            )}
+            {onWin && (
+              <button onClick={onWin} className="bg-orange-500 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-orange-600 shadow-md active:scale-95 transition-transform">
+                胡
+              </button>
+            )}
+            {onSelfDraw && (
+              <button onClick={onSelfDraw} className="bg-red-600 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-red-700 shadow-md active:scale-95 transition-transform">
+                自摸
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

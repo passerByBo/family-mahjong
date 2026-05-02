@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 鸡 - 红色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#E53935"/>
+  <!-- 鸡冠 -->
+  <circle cx="44" cy="22" r="6" fill="#FF1744"/>
+  <circle cx="50" cy="18" r="7" fill="#FF1744"/>
+  <circle cx="56" cy="22" r="6" fill="#FF1744"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="50" r="26" fill="#FFF8E1"/>
+  <!-- 眼睛 -->
+  <circle cx="40" cy="46" r="4" fill="#3D3D3D"/>
+  <circle cx="60" cy="46" r="4" fill="#3D3D3D"/>
+  <circle cx="41.5" cy="44.5" r="1.5" fill="#FFF"/>
+  <circle cx="61.5" cy="44.5" r="1.5" fill="#FFF"/>
+  <!-- 嘴巴 -->
+  <polygon points="50,54 42,60 50,64 58,60" fill="#FF9800"/>
+  <line x1="42" y1="60" x2="58" y2="60" stroke="#E65100" stroke-width="1"/>
+  <!-- 肉垂 -->
+  <ellipse cx="50" cy="68" rx="4" ry="5" fill="#FF1744"/>
+  <!-- 腮红 -->
+  <circle cx="32" cy="54" r="4" fill="#FFB6C1" opacity="0.5"/>
+  <circle cx="68" cy="54" r="4" fill="#FFB6C1" opacity="0.5"/>
+</svg>

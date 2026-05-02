@@ -1,0 +1,22 @@
+{
+  "name": "family-mahjong",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@family-mahjong/web",
+    "build": "npm run build --workspace=@family-mahjong/web",
+    "lint": "npm run lint --workspace=@family-mahjong/web",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

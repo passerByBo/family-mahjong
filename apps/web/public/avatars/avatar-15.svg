@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 马 - 深红背景 -->
+  <circle cx="50" cy="50" r="50" fill="#B71C1C"/>
+  <!-- 鬃毛 -->
+  <path d="M55,15 Q60,20 58,28 Q62,22 60,30 Q64,26 62,34" fill="#5D4037" stroke="#5D4037" stroke-width="2"/>
+  <!-- 脸 -->
+  <ellipse cx="48" cy="50" rx="22" ry="28" fill="#A0826D"/>
+  <!-- 嘴部 -->
+  <ellipse cx="46" cy="68" rx="14" ry="10" fill="#C8A882"/>
+  <!-- 眼睛 -->
+  <circle cx="38" cy="44" r="4.5" fill="#3D3D3D"/>
+  <circle cx="56" cy="44" r="4.5" fill="#3D3D3D"/>
+  <circle cx="39.5" cy="42.5" r="1.5" fill="#FFF"/>
+  <circle cx="57.5" cy="42.5" r="1.5" fill="#FFF"/>
+  <!-- 鼻孔 -->
+  <circle cx="40" cy="66" r="2.5" fill="#8B6F47"/>
+  <circle cx="52" cy="66" r="2.5" fill="#8B6F47"/>
+  <!-- 嘴巴 -->
+  <path d="M40,72 Q46,76 52,72" fill="none" stroke="#3D3D3D" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 耳朵 -->
+  <polygon points="34,22 38,38 28,34" fill="#A0826D"/>
+  <polygon points="58,22 62,38 52,34" fill="#A0826D"/>
+  <polygon points="35,25 37,35 30,32" fill="#FFB6C1"/>
+  <polygon points="57,25 60,35 53,32" fill="#FFB6C1"/>
+</svg>

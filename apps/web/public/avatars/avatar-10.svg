@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 猴子 - 浅棕背景 -->
+  <circle cx="50" cy="50" r="50" fill="#C8A882"/>
+  <!-- 耳朵 -->
+  <circle cx="22" cy="50" r="12" fill="#8B6F47"/>
+  <circle cx="22" cy="50" r="7" fill="#FFCCAA"/>
+  <circle cx="78" cy="50" r="12" fill="#8B6F47"/>
+  <circle cx="78" cy="50" r="7" fill="#FFCCAA"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="52" r="28" fill="#8B6F47"/>
+  <!-- 脸部浅色区域 -->
+  <ellipse cx="50" cy="60" rx="20" ry="18" fill="#FFCCAA"/>
+  <!-- 眼睛 -->
+  <circle cx="40" cy="48" r="4" fill="#3D3D3D"/>
+  <circle cx="60" cy="48" r="4" fill="#3D3D3D"/>
+  <circle cx="41.5" cy="46.5" r="1.5" fill="#FFF"/>
+  <circle cx="61.5" cy="46.5" r="1.5" fill="#FFF"/>
+  <!-- 鼻子 -->
+  <circle cx="45" cy="58" r="2.5" fill="#8B6F47"/>
+  <circle cx="55" cy="58" r="2.5" fill="#8B6F47"/>
+  <!-- 嘴巴 -->
+  <path d="M44,64 Q50,70 56,64" fill="none" stroke="#3D3D3D" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

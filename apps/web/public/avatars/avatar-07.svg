@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 企鹅 - 深蓝背景 -->
+  <circle cx="50" cy="50" r="50" fill="#1A3A5C"/>
+  <!-- 身体 -->
+  <ellipse cx="50" cy="60" rx="28" ry="30" fill="#2C2C2C"/>
+  <!-- 白色肚子 -->
+  <ellipse cx="50" cy="65" rx="18" ry="22" fill="#FFF"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="42" r="22" fill="#2C2C2C"/>
+  <!-- 白色脸部 -->
+  <ellipse cx="50" cy="46" rx="16" ry="14" fill="#FFF"/>
+  <!-- 眼睛 -->
+  <circle cx="42" cy="42" r="4" fill="#3D3D3D"/>
+  <circle cx="58" cy="42" r="4" fill="#3D3D3D"/>
+  <circle cx="43.5" cy="40.5" r="1.5" fill="#FFF"/>
+  <circle cx="59.5" cy="40.5" r="1.5" fill="#FFF"/>
+  <!-- 嘴巴 -->
+  <path d="M44,52 L50,56 L56,52 Z" fill="#FF9800"/>
+  <!-- 腮红 -->
+  <circle cx="36" cy="50" r="4" fill="#FFB6C1" opacity="0.5"/>
+  <circle cx="64" cy="50" r="4" fill="#FFB6C1" opacity="0.5"/>
+</svg>

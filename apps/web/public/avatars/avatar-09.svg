@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 龙 - 紫色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#9C27B0"/>
+  <!-- 角 -->
+  <polygon points="35,18 40,35 30,35" fill="#FFD54F"/>
+  <polygon points="65,18 70,35 60,35" fill="#FFD54F"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="55" r="26" fill="#66BB6A"/>
+  <!-- 鳞片纹理 -->
+  <circle cx="50" cy="38" r="4" fill="#4CAF50" opacity="0.5"/>
+  <circle cx="42" cy="42" r="3" fill="#4CAF50" opacity="0.5"/>
+  <circle cx="58" cy="42" r="3" fill="#4CAF50" opacity="0.5"/>
+  <!-- 眼睛 -->
+  <ellipse cx="40" cy="52" rx="5" ry="6" fill="#FFD54F"/>
+  <ellipse cx="60" cy="52" rx="5" ry="6" fill="#FFD54F"/>
+  <ellipse cx="40" cy="52" rx="2.5" ry="5" fill="#3D3D3D"/>
+  <ellipse cx="60" cy="52" rx="2.5" ry="5" fill="#3D3D3D"/>
+  <!-- 鼻孔 -->
+  <circle cx="45" cy="62" r="2" fill="#4CAF50"/>
+  <circle cx="55" cy="62" r="2" fill="#4CAF50"/>
+  <!-- 嘴巴 -->
+  <path d="M40,68 Q50,74 60,68" fill="none" stroke="#3D3D3D" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- 小火焰 -->
+  <path d="M48,74 Q46,78 48,82 Q50,78 52,82 Q54,78 52,74" fill="#FF6347" opacity="0.7"/>
+</svg>

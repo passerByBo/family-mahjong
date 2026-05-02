@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 熊 - 棕色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#8B6F47"/>
+  <!-- 耳朵 -->
+  <circle cx="30" cy="30" r="12" fill="#6B5335"/>
+  <circle cx="30" cy="30" r="7" fill="#D4A574"/>
+  <circle cx="70" cy="30" r="12" fill="#6B5335"/>
+  <circle cx="70" cy="30" r="7" fill="#D4A574"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="55" r="28" fill="#A0826D"/>
+  <!-- 嘴部区域 -->
+  <ellipse cx="50" cy="62" rx="18" ry="14" fill="#D4A574"/>
+  <!-- 眼睛 -->
+  <circle cx="40" cy="50" r="4" fill="#3D3D3D"/>
+  <circle cx="60" cy="50" r="4" fill="#3D3D3D"/>
+  <circle cx="41.5" cy="48.5" r="1.5" fill="#FFF"/>
+  <circle cx="61.5" cy="48.5" r="1.5" fill="#FFF"/>
+  <!-- 鼻子 -->
+  <ellipse cx="50" cy="62" rx="5" ry="4" fill="#3D3D3D"/>
+  <ellipse cx="48.5" cy="60.5" rx="1.5" ry="1" fill="#FFF"/>
+  <!-- 嘴巴 -->
+  <path d="M50,64 Q45,68 42,66" fill="none" stroke="#3D3D3D" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M50,64 Q55,68 58,66" fill="none" stroke="#3D3D3D" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

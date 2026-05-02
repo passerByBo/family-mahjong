@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 狐狸 - 红橙背景 -->
+  <circle cx="50" cy="50" r="50" fill="#FF6347"/>
+  <!-- 耳朵 -->
+  <polygon points="30,25 38,50 22,50" fill="#FF8C42"/>
+  <polygon points="32,30 36,48 26,48" fill="#FFF"/>
+  <polygon points="70,25 78,50 62,50" fill="#FF8C42"/>
+  <polygon points="68,30 74,48 64,48" fill="#FFF"/>
+  <!-- 脸 -->
+  <circle cx="50" cy="58" r="26" fill="#FF8C42"/>
+  <!-- 白色脸颊 -->
+  <ellipse cx="35" cy="62" rx="12" ry="16" fill="#FFF"/>
+  <ellipse cx="65" cy="62" rx="12" ry="16" fill="#FFF"/>
+  <ellipse cx="50" cy="70" rx="14" ry="10" fill="#FFF"/>
+  <!-- 眼睛 -->
+  <circle cx="42" cy="54" r="4" fill="#3D3D3D"/>
+  <circle cx="58" cy="54" r="4" fill="#3D3D3D"/>
+  <circle cx="43.5" cy="52.5" r="1.5" fill="#FFF"/>
+  <circle cx="59.5" cy="52.5" r="1.5" fill="#FFF"/>
+  <!-- 鼻子 -->
+  <circle cx="50" cy="64" r="3" fill="#3D3D3D"/>
+  <circle cx="49" cy="63" r="1" fill="#FFF"/>
+  <!-- 嘴巴 -->
+  <path d="M50,66 Q45,69 42,67" fill="none" stroke="#3D3D3D" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M50,66 Q55,69 58,67" fill="none" stroke="#3D3D3D" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

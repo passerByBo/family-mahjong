@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- 蛇 - 青色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#00BCD4"/>
+  <!-- 身体卷曲 -->
+  <path d="M65,75 Q75,65 70,55 Q65,45 55,50 Q45,55 40,48" fill="none" stroke="#4CAF50" stroke-width="8" stroke-linecap="round"/>
+  <!-- 头 -->
+  <ellipse cx="38" cy="45" rx="16" ry="14" fill="#66BB6A"/>
+  <!-- 花纹 -->
+  <circle cx="42" cy="38" r="3" fill="#4CAF50" opacity="0.5"/>
+  <circle cx="32" cy="42" r="2.5" fill="#4CAF50" opacity="0.5"/>
+  <!-- 眼睛 -->
+  <circle cx="32" cy="42" r="4" fill="#FFD54F"/>
+  <ellipse cx="32" cy="42" rx="2" ry="3.5" fill="#3D3D3D"/>
+  <circle cx="44" cy="42" r="4" fill="#FFD54F"/>
+  <ellipse cx="44" cy="42" rx="2" ry="3.5" fill="#3D3D3D"/>
+  <!-- 舌头 -->
+  <path d="M26,50 L20,56 M26,50 L22,58" stroke="#FF1744" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- 腮红 -->
+  <circle cx="30" cy="50" r="3" fill="#FFB6C1" opacity="0.5"/>
+  <circle cx="46" cy="50" r="3" fill="#FFB6C1" opacity="0.5"/>
+</svg>
