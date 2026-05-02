@@ -1,0 +1,8 @@
+name = "family-mahjong"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "family-mahjong"
+database_id = "b0d816bf-4bb8-4843-9c0a-a6248af2d74e"
