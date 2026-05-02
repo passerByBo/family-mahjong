@@ -1,15 +1,8 @@
 name = "family-mahjong"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
 
-# D1 数据库配置
 [[d1_databases]]
 binding = "DB"
-database_name = "family-mahjong-db"
-database_id = "your-database-id-here"
-
-# Pages 配置
-pages_build_output_dir = "apps/web/out"
-
-# 环境变量 (可选)
-[vars]
-ENVIRONMENT = "production"
+database_name = "family-mahjong"
+database_id = "b0d816bf-4bb8-4843-9c0a-a6248af2d74e"
