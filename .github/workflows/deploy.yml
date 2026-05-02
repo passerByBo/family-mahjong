@@ -35,10 +35,19 @@ jobs:
 
       - name: Move static assets to root for Cloudflare Pages
         run: |
+          # Remove existing _next and avatars directories if they exist
+          rm -rf .open-next/_next .open-next/avatars
+
+          # Move assets from assets/ to root
           if [ -d .open-next/assets ]; then
-            find .open-next/assets -mindepth 1 -maxdepth 1 -exec cp -r {} .open-next/ \;
+            mv .open-next/assets/_next .open-next/_next
+            mv .open-next/assets/avatars .open-next/avatars
+            mv .open-next/assets/BUILD_ID .open-next/BUILD_ID
             rm -rf .open-next/assets
           fi
+
+          # Copy _routes.json to .open-next directory
+          cp _routes.json .open-next/_routes.json
         working-directory: apps/web
 
       - name: Deploy to Cloudflare Pages
