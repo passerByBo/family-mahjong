@@ -29,6 +29,10 @@ jobs:
         run: npx opennextjs-cloudflare build
         working-directory: apps/web
 
+      - name: Rename worker.js to _worker.js for Cloudflare Pages
+        run: mv .open-next/worker.js .open-next/_worker.js
+        working-directory: apps/web
+
       - name: Deploy to Cloudflare Pages
         working-directory: apps/web
         env:
