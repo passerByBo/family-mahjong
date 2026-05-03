@@ -11,31 +11,66 @@ interface EventBadgeProps {
   className?: string
 }
 
-const badgeConfig: Record<EventBadgeType, { bg: string; text: string; icon: string; label: string }> = {
-  'dealer-win': { bg: 'bg-yellow-500', text: 'text-yellow-950', icon: '🟡', label: '庄胡' },
-  'win': { bg: 'bg-green-500', text: 'text-white', icon: '🟢', label: '胡' },
-  'dealer-self-draw': { bg: 'bg-blue-500', text: 'text-white', icon: '🔵', label: '庄自摸' },
-  'self-draw': { bg: 'bg-purple-500', text: 'text-white', icon: '🟣', label: '自摸' },
-  'kong': { bg: 'bg-orange-500', text: 'text-white', icon: '🟠', label: '杠' },
+// Mahjong tile styling configuration
+const tileConfig: Record<
+  EventBadgeType,
+  { borderColor: string; textColor: string; label: string }
+> = {
+  'dealer-win': {
+    borderColor: 'border-yellow-500',
+    textColor: 'text-yellow-600',
+    label: '庄胡',
+  },
+  win: {
+    borderColor: 'border-green-500',
+    textColor: 'text-green-600',
+    label: '普通胡',
+  },
+  'dealer-self-draw': {
+    borderColor: 'border-blue-500',
+    textColor: 'text-blue-600',
+    label: '庄自摸',
+  },
+  'self-draw': {
+    borderColor: 'border-purple-500',
+    textColor: 'text-purple-600',
+    label: '普通自摸',
+  },
+  kong: {
+    borderColor: 'border-orange-500',
+    textColor: 'text-orange-600',
+    label: '杠',
+  },
 }
 
 export function EventBadge({ type, playerName, size = 'default', className }: EventBadgeProps) {
-  const config = badgeConfig[type]
+  const config = tileConfig[type]
   const isSmall = size === 'sm'
+
+  // Split label into characters for vertical display
+  const labelChars = config.label.split('')
 
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1 rounded-full font-medium shadow-sm whitespace-nowrap',
-        isSmall ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1 text-xs',
-        config.bg,
-        config.text,
+        'relative inline-flex flex-col items-center justify-center',
+        'bg-gradient-to-br from-gray-50 to-white',
+        'border-2 rounded-sm shadow-md',
+        'font-bold leading-tight',
+        // Size variants - mahjong tile proportions (3:4 ratio)
+        isSmall ? 'w-8 h-11 text-[10px] gap-0' : 'w-10 h-14 text-xs gap-0.5',
+        config.borderColor,
+        config.textColor,
         className
       )}
+      title={playerName}
     >
-      <span className={isSmall ? 'text-[8px]' : 'text-[10px]'}>{config.icon}</span>
-      <span className={cn('truncate', isSmall ? 'max-w-[3rem]' : 'max-w-[4rem]')}>{playerName}</span>
-      <span className="font-semibold">{config.label}</span>
+      {/* Vertical text layout */}
+      {labelChars.map((char, index) => (
+        <span key={index} className="block">
+          {char}
+        </span>
+      ))}
     </div>
   )
 }
