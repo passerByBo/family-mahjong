@@ -58,7 +58,8 @@ export default function GamePage() {
   const [roundSummaryOpen, setRoundSummaryOpen] = useState(false)
   const [prevRoundNumber, setPrevRoundNumber] = useState<number>(1)
   const [prevRoundScores, setPrevRoundScores] = useState<{ playerId: string; name: string; amount: number }[]>([])
-  const [prevRoundEvents, setPrevRoundEvents] = useState<{ playerId: string; type: string }[]>([])
+  const [prevRoundEvents, setPrevRoundEvents] = useState<{ playerId: string; type: string; isDealer: boolean }[]>([])
+  const [prevRoundDealerCounts, setPrevRoundDealerCounts] = useState<Record<string, number>>({})
 
   // Swap player state
   const [swapPickerOpen, setSwapPickerOpen] = useState(false)
@@ -179,12 +180,19 @@ export default function GamePage() {
         if (roundRes.ok) {
           const roundData = await roundRes.json()
           const roundScores: Record<string, number> = {}
-          const roundEvents: { playerId: string; type: string }[] = []
+          const roundEvents: { playerId: string; type: string; isDealer: boolean }[] = []
+          const dealerCounts: Record<string, number> = {}
 
           // Calculate total scores and collect events from all hands in the finished round
           for (const hand of roundData.hands) {
+            const dealerId = hand.dealerId
+            // Count dealer occurrences
+            dealerCounts[dealerId] = (dealerCounts[dealerId] || 0) + 1
+
             for (const ev of hand.events) {
-              roundEvents.push({ playerId: ev.playerId, type: ev.type })
+              // Track if this event was by the dealer
+              const isDealer = ev.playerId === dealerId
+              roundEvents.push({ playerId: ev.playerId, type: ev.type, isDealer })
               for (const sc of ev.scoreChanges) {
                 roundScores[sc.playerId] = (roundScores[sc.playerId] || 0) + sc.amount
               }
@@ -198,6 +206,7 @@ export default function GamePage() {
             amount: amt,
           })))
           setPrevRoundEvents(roundEvents)
+          setPrevRoundDealerCounts(dealerCounts)
           setRoundSummaryOpen(true)
         }
       }
@@ -425,6 +434,7 @@ export default function GamePage() {
         roundNumber={prevRoundNumber}
         scores={prevRoundScores}
         events={prevRoundEvents}
+        dealerCounts={prevRoundDealerCounts}
         onNextRound={() => setRoundSummaryOpen(false)}
       />
 
