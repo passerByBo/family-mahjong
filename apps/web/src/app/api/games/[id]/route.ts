@@ -4,6 +4,18 @@ import { eq, inArray } from 'drizzle-orm'
 import { now } from '@/lib/utils'
 import { getGameState } from '@/lib/game-state'
 
+// Helper function to batch delete to avoid SQLite/D1 parameter limits
+async function batchDelete<T extends string>(
+  ids: T[],
+  deleteFunc: (batch: T[]) => Promise<any>,
+  batchSize = 100
+) {
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const batch = ids.slice(i, i + batchSize)
+    await deleteFunc(batch)
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -59,41 +71,55 @@ export async function DELETE(
     const roundIds = rounds.map(r => r.id)
 
     if (roundIds.length > 0) {
-      // 2. Get all hands for these rounds
-      const hands = await db.select().from(schema.hands).where(
-        inArray(schema.hands.roundId, roundIds)
-      )
-      const handIds = hands.map(h => h.id)
+      // 2. Get all hands for these rounds (using batch queries if needed)
+      let handIds: string[] = []
+      await batchDelete(roundIds, async (batch) => {
+        const hands = await db.select().from(schema.hands).where(
+          inArray(schema.hands.roundId, batch)
+        )
+        handIds.push(...hands.map(h => h.id))
+      })
 
       if (handIds.length > 0) {
-        // 3. Get all hand events for these hands
-        const handEvents = await db.select().from(schema.handEvents).where(
-          inArray(schema.handEvents.handId, handIds)
-        )
-        const eventIds = handEvents.map(e => e.id)
-
-        // 4. Delete score_changes
-        if (eventIds.length > 0) {
-          await db.delete(schema.scoreChanges).where(
-            inArray(schema.scoreChanges.eventId, eventIds)
+        // 3. Get all hand events for these hands (using batch queries if needed)
+        let eventIds: string[] = []
+        await batchDelete(handIds, async (batch) => {
+          const handEvents = await db.select().from(schema.handEvents).where(
+            inArray(schema.handEvents.handId, batch)
           )
+          eventIds.push(...handEvents.map(e => e.id))
+        })
+
+        // 4. Delete score_changes in batches
+        if (eventIds.length > 0) {
+          await batchDelete(eventIds, async (batch) => {
+            await db.delete(schema.scoreChanges).where(
+              inArray(schema.scoreChanges.eventId, batch)
+            )
+          })
         }
 
-        // 5. Delete hand_events
-        await db.delete(schema.handEvents).where(
-          inArray(schema.handEvents.handId, handIds)
-        )
+        // 5. Delete hand_events in batches
+        await batchDelete(handIds, async (batch) => {
+          await db.delete(schema.handEvents).where(
+            inArray(schema.handEvents.handId, batch)
+          )
+        })
       }
 
-      // 6. Delete hands
-      await db.delete(schema.hands).where(
-        inArray(schema.hands.roundId, roundIds)
-      )
+      // 6. Delete hands in batches
+      await batchDelete(roundIds, async (batch) => {
+        await db.delete(schema.hands).where(
+          inArray(schema.hands.roundId, batch)
+        )
+      })
 
-      // 7. Delete rounds
-      await db.delete(schema.rounds).where(
-        inArray(schema.rounds.id, roundIds)
-      )
+      // 7. Delete rounds in batches
+      await batchDelete(roundIds, async (batch) => {
+        await db.delete(schema.rounds).where(
+          inArray(schema.rounds.id, batch)
+        )
+      })
     }
 
     // 8. Delete game_players
