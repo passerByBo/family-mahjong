@@ -4,6 +4,12 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Trash2, Loader2 } from 'lucide-react'
 
 interface Game {
   id: string
@@ -22,6 +28,10 @@ export default function HistoryPage() {
   const [games, setGames] = useState<GameWithPlayers[]>([])
   const [loading, setLoading] = useState(true)
   const [playerMap, setPlayerMap] = useState<Record<string, string>>({})
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [gameToDelete, setGameToDelete] = useState<GameWithPlayers | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     try {
@@ -74,6 +84,44 @@ export default function HistoryPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  const handleDeleteClick = (e: React.MouseEvent, game: GameWithPlayers) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setGameToDelete(game)
+    setDeleteError(null)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!gameToDelete) return
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    try {
+      const res = await fetch(`/api/games/${gameToDelete.id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        // Optimistically remove from UI
+        setGames(prev => prev.filter(g => g.id !== gameToDelete.id))
+        setDeleteDialogOpen(false)
+        setGameToDelete(null)
+      } else {
+        const error = await res.json()
+        setDeleteError(error.error || '删除失败')
+      }
+    } catch (error) {
+      console.error('删除牌局失败:', error)
+      setDeleteError('删除失败，请重试')
+      // Refetch on error to ensure UI is in sync
+      await fetchData()
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr)
     return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
@@ -125,14 +173,29 @@ export default function HistoryPage() {
                   className="cursor-pointer hover:bg-accent/50 transition-all shadow-sm hover:shadow-md"
                   onClick={() => router.push(`/games/${game.id}/summary`)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 relative">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-muted-foreground">
                         {formatDate(game.createdAt)}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {game.playerNames.join(' / ')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {game.playerNames.join(' / ')}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={(e) => handleDeleteClick(e, game)}
+                          disabled={deleting && gameToDelete?.id === game.id}
+                        >
+                          {deleting && gameToDelete?.id === game.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-4 gap-2">
                       {scores.map(s => (
@@ -151,6 +214,39 @@ export default function HistoryPage() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-sm mx-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除牌局</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要删除「{gameToDelete?.playerNames.join('、') || '未知牌局'}」吗？此操作无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteError && (
+            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+              {deleteError}
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  删除中...
+                </>
+              ) : (
+                '删除'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

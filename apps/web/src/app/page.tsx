@@ -11,7 +11,12 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogFooter, DialogDescription,
 } from '@/components/ui/dialog'
-import { Plus, Users, History, PlayCircle, Settings } from 'lucide-react'
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Plus, Users, History, PlayCircle, Settings, Trash2, Loader2 } from 'lucide-react'
 
 interface Game {
   id: string
@@ -28,6 +33,10 @@ export default function Home() {
   const [createOpen, setCreateOpen] = useState(false)
   const [gameName, setGameName] = useState('')
   const [creating, setCreating] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [gameToDelete, setGameToDelete] = useState<Game | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchActiveGames() {
@@ -67,6 +76,52 @@ export default function Home() {
       console.error('创建牌局失败:', error)
     } finally {
       setCreating(false)
+    }
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent, game: Game) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setGameToDelete(game)
+    setDeleteError(null)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!gameToDelete) return
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    try {
+      const res = await fetch(`/api/games/${gameToDelete.id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        // Optimistically remove from UI
+        setActiveGames(prev => prev.filter(g => g.id !== gameToDelete.id))
+        setDeleteDialogOpen(false)
+        setGameToDelete(null)
+      } else {
+        const error = await res.json()
+        setDeleteError(error.error || '删除失败')
+      }
+    } catch (error) {
+      console.error('删除牌局失败:', error)
+      setDeleteError('删除失败，请重试')
+      // Refetch on error to ensure UI is in sync
+      try {
+        const res = await fetch('/api/games?status=active')
+        if (res.ok) {
+          const data = await res.json()
+          setActiveGames(data)
+        }
+      } catch (refetchError) {
+        console.error('重新获取牌局失败:', refetchError)
+      }
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -110,13 +165,13 @@ export default function Home() {
                   <Card className="hover:bg-accent/50 transition-all cursor-pointer mb-3 shadow-md hover:shadow-lg overflow-hidden">
                     <CardContent className="flex items-center justify-between p-4 relative">
                       <div className={`absolute left-0 top-0 bottom-0 w-1 ${game.status === 'setup' ? 'bg-amber-400' : 'bg-emerald-500'}`} />
-                      <div className="flex items-center gap-3 pl-2">
+                      <div className="flex items-center gap-3 pl-2 flex-1 min-w-0">
                         {game.status === 'setup' ? (
-                          <Settings className="h-5 w-5 text-muted-foreground" />
+                          <Settings className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                         ) : (
-                          <PlayCircle className="h-5 w-5 text-primary" />
+                          <PlayCircle className="h-5 w-5 text-primary flex-shrink-0" />
                         )}
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <p className="font-medium">{game.name || '未命名牌局'}</p>
                           <p className="text-xs text-muted-foreground">
                             {game.players.length > 0
@@ -127,7 +182,22 @@ export default function Home() {
                           </p>
                         </div>
                       </div>
-                      <Badge variant={statusVariant(game.status)}>{statusLabel(game.status)}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={statusVariant(game.status)}>{statusLabel(game.status)}</Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={(e) => handleDeleteClick(e, game)}
+                          disabled={deleting && gameToDelete?.id === game.id}
+                        >
+                          {deleting && gameToDelete?.id === game.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 </Link>
@@ -169,6 +239,39 @@ export default function Home() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-sm mx-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除牌局</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要删除「{gameToDelete?.name || '未命名牌局'}」吗？此操作无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {deleteError && (
+            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
+              {deleteError}
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>取消</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  删除中...
+                </>
+              ) : (
+                '删除'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
