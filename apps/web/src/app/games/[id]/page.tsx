@@ -90,11 +90,17 @@ export default function GamePage() {
 
   useEffect(() => { fetchGameState() }, [fetchGameState])
 
-  // Clear hand events when hand changes
+  // Clear hand events only when hand ID actually changes (new hand starts)
   useEffect(() => {
-    if (gameData?.currentHand?.id && gameData.currentHand.id !== currentHandId) {
-      setCurrentHandId(gameData.currentHand.id)
-      setHandEvents([])
+    if (gameData?.currentHand?.id) {
+      if (currentHandId === '') {
+        // First load - just set the ID without clearing
+        setCurrentHandId(gameData.currentHand.id)
+      } else if (gameData.currentHand.id !== currentHandId) {
+        // Hand ID changed - clear badges and update ID
+        setCurrentHandId(gameData.currentHand.id)
+        setHandEvents([])
+      }
     }
   }, [gameData?.currentHand?.id, currentHandId])
 

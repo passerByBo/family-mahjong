@@ -36,7 +36,7 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
       <div className="grid grid-cols-3 grid-rows-3 gap-2 w-full h-full p-4">
         {/* Top row - Player at seat 3 */}
-        <div className="col-start-2 row-start-1 flex gap-1 justify-center items-start">
+        <div className="col-start-2 row-start-1 flex flex-wrap gap-1 justify-center items-start">
           {eventsByPosition[3].map(event => (
             <EventBadge
               key={event.id}
@@ -48,7 +48,7 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
         </div>
 
         {/* Right column - Player at seat 2 */}
-        <div className="col-start-3 row-start-2 flex flex-col gap-1 items-end justify-center">
+        <div className="col-start-3 row-start-2 flex flex-col flex-wrap gap-1 items-end justify-center">
           {eventsByPosition[2].map(event => (
             <EventBadge
               key={event.id}
@@ -60,7 +60,7 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
         </div>
 
         {/* Bottom row - Player at seat 1 */}
-        <div className="col-start-2 row-start-3 flex gap-1 justify-center items-end">
+        <div className="col-start-2 row-start-3 flex flex-wrap gap-1 justify-center items-end">
           {eventsByPosition[1].map(event => (
             <EventBadge
               key={event.id}
@@ -72,7 +72,7 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
         </div>
 
         {/* Left column - Player at seat 4 */}
-        <div className="col-start-1 row-start-2 flex flex-col gap-1 items-start justify-center">
+        <div className="col-start-1 row-start-2 flex flex-col flex-wrap gap-1 items-start justify-center">
           {eventsByPosition[4].map(event => (
             <EventBadge
               key={event.id}

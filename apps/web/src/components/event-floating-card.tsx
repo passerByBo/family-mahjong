@@ -107,12 +107,12 @@ export function EventFloatingCard({
 
   const content = (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center ${colors.backdrop} transition-opacity duration-200 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-opacity duration-200 ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
       <div
-        className={`${colors.bg} rounded-2xl shadow-2xl p-6 max-w-sm w-[90vw] transition-all duration-500 ${
+        className={`${colors.bg} rounded-2xl shadow-2xl p-6 max-w-sm w-[90vw] pointer-events-auto transition-all duration-500 ${
           shrinking ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
         }`}
       >
