@@ -21,23 +21,23 @@ export function RoundSummary({
 }: RoundSummaryProps) {
   const sorted = [...scores].sort((a, b) => b.amount - a.amount)
 
-  // Build stats per player
+  // Build stats per player - separate dealer and non-dealer events
   const statsMap: Record<string, {
     name: string
-    win: number
-    winAsDealer: number
-    self_draw: number
-    selfDrawAsDealer: number
-    kong: number
+    dealerWin: number        // 庄胡
+    dealerSelfDraw: number   // 庄自摸
+    win: number              // 胡
+    selfDraw: number         // 自摸
+    kong: number             // 杠
   }> = {}
 
   for (const s of scores) {
     statsMap[s.playerId] = {
       name: s.name,
+      dealerWin: 0,
+      dealerSelfDraw: 0,
       win: 0,
-      winAsDealer: 0,
-      self_draw: 0,
-      selfDrawAsDealer: 0,
+      selfDraw: 0,
       kong: 0
     }
   }
@@ -45,11 +45,17 @@ export function RoundSummary({
   for (const e of events) {
     if (statsMap[e.playerId]) {
       if (e.type === 'win') {
-        statsMap[e.playerId].win++
-        if (e.isDealer) statsMap[e.playerId].winAsDealer++
+        if (e.isDealer) {
+          statsMap[e.playerId].dealerWin++
+        } else {
+          statsMap[e.playerId].win++
+        }
       } else if (e.type === 'self_draw') {
-        statsMap[e.playerId].self_draw++
-        if (e.isDealer) statsMap[e.playerId].selfDrawAsDealer++
+        if (e.isDealer) {
+          statsMap[e.playerId].dealerSelfDraw++
+        } else {
+          statsMap[e.playerId].selfDraw++
+        }
       } else if (e.type === 'kong') {
         statsMap[e.playerId].kong++
       }
@@ -57,7 +63,7 @@ export function RoundSummary({
   }
 
   const playerStats = Object.values(statsMap).filter(
-    s => s.win > 0 || s.self_draw > 0 || s.kong > 0
+    s => s.dealerWin > 0 || s.dealerSelfDraw > 0 || s.win > 0 || s.selfDraw > 0 || s.kong > 0
   )
 
   return (
@@ -74,15 +80,12 @@ export function RoundSummary({
             <h4 className="text-sm font-semibold text-muted-foreground">本轮统计</h4>
             {playerStats.map(s => {
               const parts: string[] = []
-              if (s.win > 0) {
-                parts.push(`胡×${s.win}${s.winAsDealer > 0 ? `(坐庄${s.winAsDealer}次)` : ''}`)
-              }
-              if (s.self_draw > 0) {
-                parts.push(`自摸×${s.self_draw}${s.selfDrawAsDealer > 0 ? `(坐庄${s.selfDrawAsDealer}次)` : ''}`)
-              }
-              if (s.kong > 0) {
-                parts.push(`杠×${s.kong}`)
-              }
+              if (s.dealerWin > 0) parts.push(`庄胡×${s.dealerWin}`)
+              if (s.dealerSelfDraw > 0) parts.push(`庄自摸×${s.dealerSelfDraw}`)
+              if (s.win > 0) parts.push(`胡×${s.win}`)
+              if (s.selfDraw > 0) parts.push(`自摸×${s.selfDraw}`)
+              if (s.kong > 0) parts.push(`杠×${s.kong}`)
+
               return (
                 <div key={s.name} className="text-sm px-3">
                   <span className="font-medium">{s.name}: </span>
@@ -93,25 +96,8 @@ export function RoundSummary({
           </div>
         )}
 
-        {/* Dealer counts section */}
-        {Object.keys(dealerCounts).length > 0 && (
-          <div className="space-y-1 py-2 border-t">
-            <h4 className="text-sm font-semibold text-muted-foreground">坐庄次数</h4>
-            {scores.map(s => {
-              const count = dealerCounts[s.playerId] || 0
-              if (count === 0) return null
-              return (
-                <div key={s.playerId} className="text-sm px-3">
-                  <span className="font-medium">{s.name}: </span>
-                  <span>坐庄×{count}次</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
-
         {/* Scores ranking */}
-        <div className="space-y-2 py-2">
+        <div className="space-y-2 py-2 border-t">
           {sorted.map((s, idx) => (
             <div
               key={s.playerId}
