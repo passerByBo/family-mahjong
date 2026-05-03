@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { now } from '@/lib/utils'
 import { getGameState } from '@/lib/game-state'
 
@@ -61,39 +61,39 @@ export async function DELETE(
     if (roundIds.length > 0) {
       // 2. Get all hands for these rounds
       const hands = await db.select().from(schema.hands).where(
-        eq(schema.hands.roundId, roundIds[0])
+        inArray(schema.hands.roundId, roundIds)
       )
       const handIds = hands.map(h => h.id)
 
       if (handIds.length > 0) {
         // 3. Get all hand events for these hands
         const handEvents = await db.select().from(schema.handEvents).where(
-          eq(schema.handEvents.handId, handIds[0])
+          inArray(schema.handEvents.handId, handIds)
         )
         const eventIds = handEvents.map(e => e.id)
 
         // 4. Delete score_changes
         if (eventIds.length > 0) {
-          for (const eventId of eventIds) {
-            await db.delete(schema.scoreChanges).where(eq(schema.scoreChanges.eventId, eventId))
-          }
+          await db.delete(schema.scoreChanges).where(
+            inArray(schema.scoreChanges.eventId, eventIds)
+          )
         }
 
         // 5. Delete hand_events
-        for (const handId of handIds) {
-          await db.delete(schema.handEvents).where(eq(schema.handEvents.handId, handId))
-        }
+        await db.delete(schema.handEvents).where(
+          inArray(schema.handEvents.handId, handIds)
+        )
       }
 
       // 6. Delete hands
-      for (const roundId of roundIds) {
-        await db.delete(schema.hands).where(eq(schema.hands.roundId, roundId))
-      }
+      await db.delete(schema.hands).where(
+        inArray(schema.hands.roundId, roundIds)
+      )
 
       // 7. Delete rounds
-      for (const roundId of roundIds) {
-        await db.delete(schema.rounds).where(eq(schema.rounds.id, roundId))
-      }
+      await db.delete(schema.rounds).where(
+        inArray(schema.rounds.id, roundIds)
+      )
     }
 
     // 8. Delete game_players
