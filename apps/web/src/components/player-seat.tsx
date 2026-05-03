@@ -2,7 +2,8 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getAvatarById } from '@/lib/avatars'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Loader2 } from 'lucide-react'
+import { EventBadgeContainer, type HandEvent } from './event-badge-container'
 
 interface PlayerSeatProps {
   player: { id: string; name: string; avatar: string }
@@ -16,6 +17,9 @@ interface PlayerSeatProps {
   onRemove?: () => void
   onSwap?: () => void
   showActions?: boolean
+  actionLoading?: boolean
+  loadingAction?: 'kong' | 'win' | 'self_draw'
+  handEvents?: HandEvent[]
 }
 
 function formatScore(score: number): string {
@@ -36,9 +40,13 @@ const positionStyles: Record<string, string> = {
   right: 'flex-row-reverse items-center',
 }
 
-export function PlayerSeat({ player, score, totalScore, isDealer, position, onKong, onWin, onSelfDraw, onRemove, onSwap, showActions }: PlayerSeatProps) {
+export function PlayerSeat({
+  player, score, totalScore, isDealer, position, onKong, onWin, onSelfDraw,
+  onRemove, onSwap, showActions, actionLoading, loadingAction, handEvents
+}: PlayerSeatProps) {
   const avatar = getAvatarById(player.avatar)
   const isVertical = position === 'bottom' || position === 'top'
+  const disabled = actionLoading || false
 
   return (
     <div className={`flex gap-1.5 ${positionStyles[position]}`}>
@@ -81,20 +89,40 @@ export function PlayerSeat({ player, score, totalScore, isDealer, position, onKo
             总{formatScore(totalScore)}
           </span>
         )}
+        {handEvents && handEvents.length > 0 && (
+          <div className="mt-1">
+            <EventBadgeContainer events={handEvents} />
+          </div>
+        )}
         {showActions && (onKong || onWin || onSelfDraw) && (
           <div className={`flex gap-1.5 mt-1.5 ${isVertical ? 'flex-row' : 'flex-col'}`}>
             {onKong && (
-              <button onClick={onKong} className="bg-blue-600 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-blue-700 shadow-md active:scale-95 transition-transform">
+              <button
+                onClick={onKong}
+                disabled={disabled}
+                className="bg-blue-600 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-blue-700 shadow-md active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:active:scale-100 flex items-center justify-center gap-1"
+              >
+                {loadingAction === 'kong' && <Loader2 className="h-3 w-3 animate-spin" />}
                 杠
               </button>
             )}
             {onWin && (
-              <button onClick={onWin} className="bg-orange-500 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-orange-600 shadow-md active:scale-95 transition-transform">
+              <button
+                onClick={onWin}
+                disabled={disabled}
+                className="bg-orange-500 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-orange-600 shadow-md active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500 disabled:active:scale-100 flex items-center justify-center gap-1"
+              >
+                {loadingAction === 'win' && <Loader2 className="h-3 w-3 animate-spin" />}
                 胡
               </button>
             )}
             {onSelfDraw && (
-              <button onClick={onSelfDraw} className="bg-red-600 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-red-700 shadow-md active:scale-95 transition-transform">
+              <button
+                onClick={onSelfDraw}
+                disabled={disabled}
+                className="bg-red-600 text-white text-sm font-medium px-3 py-1.5 min-w-[3rem] rounded-lg cursor-pointer hover:bg-red-700 shadow-md active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-600 disabled:active:scale-100 flex items-center justify-center gap-1"
+              >
+                {loadingAction === 'self_draw' && <Loader2 className="h-3 w-3 animate-spin" />}
                 自摸
               </button>
             )}

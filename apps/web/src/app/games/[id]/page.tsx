@@ -14,6 +14,9 @@ import { RoundSummary } from '@/components/round-summary'
 import { PlayerPickerDialog } from '@/components/player-picker-dialog'
 import { SwapPlayerDialog } from '@/components/swap-player-dialog'
 import { DealerPickerDialog } from '@/components/dealer-picker-dialog'
+import { EventFloatingCard } from '@/components/event-floating-card'
+import { type HandEvent } from '@/components/event-badge-container'
+import { type EventBadgeType } from '@/components/event-badge'
 import { calculateScore, type EventType } from '@/lib/scoring'
 import { ArrowLeft } from 'lucide-react'
 
@@ -50,9 +53,20 @@ export default function GamePage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<{ type: EventType; playerId: string } | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+  const [loadingPlayerId, setLoadingPlayerId] = useState<string>('')
+  const [loadingAction, setLoadingAction] = useState<EventType | undefined>(undefined)
   const [countdown, setCountdown] = useState(0)
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const submitRef = useRef<() => void>(() => {})
+
+  // Event visualization state
+  const [handEvents, setHandEvents] = useState<HandEvent[]>([])
+  const [floatingEvent, setFloatingEvent] = useState<{
+    type: EventBadgeType
+    playerName: string
+    scoreChanges: { playerId: string; playerName: string; amount: number }[]
+  } | null>(null)
+  const [currentHandId, setCurrentHandId] = useState<string>('')
 
   // Round summary state
   const [roundSummaryOpen, setRoundSummaryOpen] = useState(false)
@@ -82,6 +96,14 @@ export default function GamePage() {
   }, [gameId, router])
 
   useEffect(() => { fetchGameState() }, [fetchGameState])
+
+  // Clear hand events when hand changes
+  useEffect(() => {
+    if (gameData?.currentHand?.id && gameData.currentHand.id !== currentHandId) {
+      setCurrentHandId(gameData.currentHand.id)
+      setHandEvents([])
+    }
+  }, [gameData?.currentHand?.id, currentHandId])
 
   // Countdown auto-confirm for win/self-draw
   useEffect(() => {
@@ -131,38 +153,101 @@ export default function GamePage() {
 
   // --- Playing mode handlers ---
   const handleKong = async (playerId: string) => {
+    if (actionLoading) return
     setActionLoading(true)
+    setLoadingPlayerId(playerId)
+    setLoadingAction('kong')
     try {
       const res = await fetch(`/api/games/${gameId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'kong', playerId }),
       })
-      if (res.ok) await handlePostAction()
+      if (res.ok) {
+        await showEventVisualization('kong', playerId)
+        await handlePostAction()
+      }
     } finally {
       setActionLoading(false)
+      setLoadingPlayerId('')
+      setLoadingAction(undefined)
     }
   }
 
   const handleWinOrSelfDraw = (type: EventType, playerId: string) => {
+    if (actionLoading) return
     setPendingAction({ type, playerId })
     setConfirmOpen(true)
   }
 
+  const showEventVisualization = async (type: EventType, playerId: string) => {
+    if (!gameData) return
+
+    const playerName = activePlayers.find(p => p.id === playerId)?.name || '未知'
+    const isDealer = playerId === dealerId
+
+    // Determine badge type
+    let badgeType: EventBadgeType
+    if (type === 'kong') {
+      badgeType = 'kong'
+    } else if (type === 'win') {
+      badgeType = isDealer ? 'dealer-win' : 'win'
+    } else {
+      badgeType = isDealer ? 'dealer-self-draw' : 'self-draw'
+    }
+
+    // Calculate score changes
+    const scoreChanges = calculateScore({
+      eventType: type,
+      playerId,
+      dealerId,
+      allPlayerIds: activePlayers.map(p => p.id),
+    }).map(sc => ({
+      playerId: sc.playerId,
+      playerName: activePlayers.find(p => p.id === sc.playerId)?.name || '未知',
+      amount: sc.amount,
+    }))
+
+    // Show floating card
+    setFloatingEvent({ type: badgeType, playerName, scoreChanges })
+
+    // Wait for floating card to complete (will be cleared by onComplete)
+  }
+
+  const handleFloatingCardComplete = () => {
+    if (floatingEvent) {
+      // Add to hand events
+      const newEvent: HandEvent = {
+        id: `${Date.now()}-${Math.random()}`,
+        type: floatingEvent.type,
+        playerName: floatingEvent.playerName,
+      }
+      setHandEvents(prev => [...prev, newEvent])
+    }
+    setFloatingEvent(null)
+  }
+
   const submitPendingAction = async () => {
-    if (!pendingAction) return
+    if (!pendingAction || actionLoading) return
     if (countdownRef.current) clearInterval(countdownRef.current)
     setActionLoading(true)
+    setLoadingPlayerId(pendingAction.playerId)
+    setLoadingAction(pendingAction.type)
     try {
       const res = await fetch(`/api/games/${gameId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: pendingAction.type, playerId: pendingAction.playerId }),
       })
-      if (res.ok) await handlePostAction()
+      if (res.ok) {
+        setConfirmOpen(false)
+        await showEventVisualization(pendingAction.type, pendingAction.playerId)
+        await handlePostAction()
+      }
     } finally {
       setActionLoading(false)
-      setConfirmOpen(false)
+      setLoadingPlayerId('')
+      setLoadingAction(undefined)
       setPendingAction(null)
     }
   }
@@ -357,8 +442,21 @@ export default function GamePage() {
           onWin={(pid) => handleWinOrSelfDraw('win', pid)}
           onSelfDraw={(pid) => handleWinOrSelfDraw('self_draw', pid)}
           onSwapPlayer={handleSwapPlayer}
+          actionLoading={actionLoading}
+          loadingPlayerId={loadingPlayerId}
+          loadingAction={loadingAction}
+          handEvents={handEvents}
         />
       </div>
+
+      {floatingEvent && (
+        <EventFloatingCard
+          type={floatingEvent.type}
+          playerName={floatingEvent.playerName}
+          scoreChanges={floatingEvent.scoreChanges}
+          onComplete={handleFloatingCardComplete}
+        />
+      )}
 
       {isSetup && allSeated && (
         <div className="px-4 pb-3 shrink-0">

@@ -2,6 +2,7 @@
 
 import { PlayerSeat } from '@/components/player-seat'
 import { EmptySeat } from '@/components/empty-seat'
+import { type HandEvent } from './event-badge-container'
 
 interface Player {
   id: string
@@ -31,10 +32,15 @@ interface MahjongTableProps {
   onWin?: (playerId: string) => void
   onSelfDraw?: (playerId: string) => void
   onSwapPlayer?: (playerId: string) => void
+  actionLoading?: boolean
+  loadingPlayerId?: string
+  loadingAction?: 'kong' | 'win' | 'self_draw'
+  handEvents?: HandEvent[]
 }
 
 export function MahjongTable({
   gameState, onAction, onAddPlayer, onRemovePlayer, onKong, onWin, onSelfDraw, onSwapPlayer,
+  actionLoading, loadingPlayerId, loadingAction, handEvents,
 }: MahjongTableProps) {
   const { players, dealerId, roundNumber, handNumber, roundScores, totalScores, gameStatus, gameName } = gameState
 
@@ -74,6 +80,9 @@ export function MahjongTable({
       )
     }
 
+    const playerEvents = handEvents?.filter(e => e.playerName === player.name) || []
+    const isLoadingPlayer = loadingPlayerId === player.id
+
     return (
       <PlayerSeat
         player={player}
@@ -86,6 +95,9 @@ export function MahjongTable({
         onWin={onWin ? () => onWin(player.id) : undefined}
         onSelfDraw={onSelfDraw ? () => onSelfDraw(player.id) : undefined}
         onSwap={onSwapPlayer && gameStatus === 'playing' ? () => onSwapPlayer(player.id) : undefined}
+        actionLoading={actionLoading}
+        loadingAction={isLoadingPlayer ? loadingAction : undefined}
+        handEvents={playerEvents}
       />
     )
   }
