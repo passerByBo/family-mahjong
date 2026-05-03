@@ -1,13 +1,9 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-  DialogFooter, DialogDescription,
-} from '@/components/ui/dialog'
 import { MahjongTable } from '@/components/mahjong-table'
 import { GameActionBar } from '@/components/game-action-bar'
 import { RoundSummary } from '@/components/round-summary'
@@ -49,22 +45,19 @@ export default function GamePage() {
   const [pickerSeat, setPickerSeat] = useState<number>(1)
   const [dealerPickerOpen, setDealerPickerOpen] = useState(false)
 
-  // Playing mode state
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<{ type: EventType; playerId: string } | null>(null)
-  const [actionLoading, setActionLoading] = useState(false)
+      const [actionLoading, setActionLoading] = useState(false)
   const [loadingPlayerId, setLoadingPlayerId] = useState<string>('')
   const [loadingAction, setLoadingAction] = useState<EventType | undefined>(undefined)
-  const [countdown, setCountdown] = useState(0)
-  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const submitRef = useRef<() => void>(() => {})
-
+      
   // Event visualization state
   const [handEvents, setHandEvents] = useState<HandEvent[]>([])
   const [floatingEvent, setFloatingEvent] = useState<{
     type: EventBadgeType
     playerName: string
     scoreChanges: { playerId: string; playerName: string; amount: number }[]
+    countdown?: number
+    onConfirm?: () => void
+    onCancel?: () => void
   } | null>(null)
   const [currentHandId, setCurrentHandId] = useState<string>('')
 
@@ -105,26 +98,7 @@ export default function GamePage() {
     }
   }, [gameData?.currentHand?.id, currentHandId])
 
-  // Countdown auto-confirm for win/self-draw
-  useEffect(() => {
-    if (confirmOpen && !actionLoading) {
-      setCountdown(5)
-      countdownRef.current = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(countdownRef.current!)
-            submitRef.current()
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    } else {
-      if (countdownRef.current) clearInterval(countdownRef.current)
-      setCountdown(0)
-    }
-    return () => { if (countdownRef.current) clearInterval(countdownRef.current) }
-  }, [confirmOpen, actionLoading])
+  
 
   // --- Setup mode handlers ---
   const handleAddPlayer = (seatPosition: number) => {
@@ -175,9 +149,59 @@ export default function GamePage() {
   }
 
   const handleWinOrSelfDraw = (type: EventType, playerId: string) => {
-    if (actionLoading) return
-    setPendingAction({ type, playerId })
-    setConfirmOpen(true)
+    if (actionLoading || floatingEvent) return
+    
+    const playerName = activePlayers.find(p => p.id === playerId)?.name || '未知'
+    const isDealer = playerId === dealerId
+    
+    let badgeType: EventBadgeType
+    if (type === 'win') {
+      badgeType = isDealer ? 'dealer-win' : 'win'
+    } else {
+      badgeType = isDealer ? 'dealer-self-draw' : 'self-draw'
+    }
+    
+    const scoreChanges = calculateScore({
+      eventType: type,
+      playerId,
+      dealerId,
+      allPlayerIds: activePlayers.map(p => p.id),
+    }).map(sc => ({
+      playerId: sc.playerId,
+      playerName: activePlayers.find(p => p.id === sc.playerId)?.name || '未知',
+      amount: sc.amount,
+    }))
+    
+    setFloatingEvent({
+      type: badgeType,
+      playerName,
+      scoreChanges,
+      countdown: 3,
+      onConfirm: async () => {
+        setFloatingEvent(null)
+        setActionLoading(true)
+        setLoadingPlayerId(playerId)
+        setLoadingAction(type)
+        try {
+          const res = await fetch(`/api/games/${gameId}/events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, playerId }),
+          })
+          if (res.ok) {
+            await showEventVisualization(type, playerId)
+            await handlePostAction()
+          }
+        } finally {
+          setActionLoading(false)
+          setLoadingPlayerId('')
+          setLoadingAction(undefined)
+        }
+      },
+      onCancel: () => {
+        setFloatingEvent(null)
+      }
+    })
   }
 
   const showEventVisualization = async (type: EventType, playerId: string) => {
@@ -227,31 +251,7 @@ export default function GamePage() {
     setFloatingEvent(null)
   }
 
-  const submitPendingAction = async () => {
-    if (!pendingAction || actionLoading) return
-    if (countdownRef.current) clearInterval(countdownRef.current)
-    setActionLoading(true)
-    setLoadingPlayerId(pendingAction.playerId)
-    setLoadingAction(pendingAction.type)
-    try {
-      const res = await fetch(`/api/games/${gameId}/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: pendingAction.type, playerId: pendingAction.playerId }),
-      })
-      if (res.ok) {
-        setConfirmOpen(false)
-        await showEventVisualization(pendingAction.type, pendingAction.playerId)
-        await handlePostAction()
-      }
-    } finally {
-      setActionLoading(false)
-      setLoadingPlayerId('')
-      setLoadingAction(undefined)
-      setPendingAction(null)
-    }
-  }
-  submitRef.current = submitPendingAction
+  
 
   const handlePostAction = async () => {
     const prevRound = gameData?.currentRound
@@ -390,16 +390,7 @@ export default function GamePage() {
   const roundNumber = gameData.currentRound?.number || 1
   const handNumber = gameData.currentHand?.number || 1
 
-  const previewChanges = pendingAction
-    ? calculateScore({
-        eventType: pendingAction.type,
-        playerId: pendingAction.playerId,
-        dealerId,
-        allPlayerIds: activePlayers.map(p => p.id),
-      })
-    : []
-  const getPlayerName = (id: string) => activePlayers.find(p => p.id === id)?.name || '未知'
-  const typeLabel = (t: string) => t === 'kong' ? '杠' : t === 'win' ? '胡' : '自摸'
+  
 
   const handleStartGame = async (startDealerId: string) => {
     setDealerPickerOpen(false)
@@ -454,6 +445,9 @@ export default function GamePage() {
           type={floatingEvent.type}
           playerName={floatingEvent.playerName}
           scoreChanges={floatingEvent.scoreChanges}
+          countdown={floatingEvent.countdown}
+          onConfirm={floatingEvent.onConfirm}
+          onCancel={floatingEvent.onCancel}
           onComplete={handleFloatingCardComplete}
         />
       )}
@@ -498,33 +492,7 @@ export default function GamePage() {
         onConfirm={handleStartGame}
       />
 
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="max-w-sm mx-auto">
-          <DialogHeader>
-            <DialogTitle>确认操作</DialogTitle>
-            <DialogDescription>
-              {pendingAction && `${getPlayerName(pendingAction.playerId)} ${typeLabel(pendingAction.type)}`}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <p className="text-sm font-medium text-muted-foreground">积分变化预览:</p>
-            {previewChanges.map(sc => (
-              <div key={sc.playerId} className="flex justify-between items-center px-2">
-                <span className="text-sm">{getPlayerName(sc.playerId)}</span>
-                <span className={`text-sm font-bold ${sc.amount > 0 ? 'text-green-600' : sc.amount < 0 ? 'text-red-600' : 'text-gray-400'}`}>
-                  {sc.amount > 0 ? `+${sc.amount}` : sc.amount}
-                </span>
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setConfirmOpen(false); setPendingAction(null) }}>取消</Button>
-            <Button onClick={submitPendingAction} disabled={actionLoading}>
-              {actionLoading ? '提交中...' : countdown > 0 ? `确认 (${countdown}s)` : '确认'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      
 
       <RoundSummary
         open={roundSummaryOpen}
