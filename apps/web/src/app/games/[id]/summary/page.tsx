@@ -12,9 +12,20 @@ interface RoundSummaryData {
   scores: Record<string, number>
 }
 
+interface PlayerStats {
+  totalWins: number
+  dealerWins: number
+  nonDealerWins: number
+  totalSelfDraws: number
+  dealerSelfDraws: number
+  nonDealerSelfDraws: number
+  totalKongs: number
+}
+
 interface SummaryData {
   ranking: { playerId: string; score: number }[]
   roundSummaries: RoundSummaryData[]
+  playerStats: Record<string, PlayerStats>
 }
 
 export default function GameSummaryPage() {
@@ -106,6 +117,66 @@ export default function GameSummaryPage() {
             ))}
           </CardContent>
         </Card>
+
+        {/* Player Statistics */}
+        {summary.playerStats && Object.keys(summary.playerStats).length > 0 && (
+          <>
+            <h2 className="text-lg font-semibold mb-3 mt-6">详细统计</h2>
+            <div className="space-y-3 mb-6">
+              {summary.ranking.map((r) => {
+                const stats = summary.playerStats[r.playerId]
+                if (!stats) return null
+
+                return (
+                  <Card key={r.playerId}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">
+                        {playerMap[r.playerId] || '未知'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="grid grid-cols-2 gap-3">
+                        {/* Wins */}
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="text-xs text-muted-foreground mb-1">胡牌次数</div>
+                          <div className="text-2xl font-bold">{stats.totalWins}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            坐庄: {stats.dealerWins} | 普通: {stats.nonDealerWins}
+                          </div>
+                        </div>
+
+                        {/* Self-draws */}
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="text-xs text-muted-foreground mb-1">自摸次数</div>
+                          <div className="text-2xl font-bold">{stats.totalSelfDraws}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            坐庄: {stats.dealerSelfDraws} | 普通: {stats.nonDealerSelfDraws}
+                          </div>
+                        </div>
+
+                        {/* Kongs */}
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="text-xs text-muted-foreground mb-1">杠次数</div>
+                          <div className="text-2xl font-bold">{stats.totalKongs}</div>
+                        </div>
+
+                        {/* Win Rate */}
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="text-xs text-muted-foreground mb-1">坐庄胡率</div>
+                          <div className="text-2xl font-bold">
+                            {stats.dealerWins > 0
+                              ? `${((stats.dealerWins / stats.totalWins) * 100).toFixed(0)}%`
+                              : '0%'}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </>
+        )}
 
         {/* Round details */}
         <h2 className="text-lg font-semibold mb-3">每轮明细</h2>
