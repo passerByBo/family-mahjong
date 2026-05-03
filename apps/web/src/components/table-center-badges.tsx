@@ -42,8 +42,8 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
   console.log('✅ TableCenterBadges - Badges will appear in front of each player like real mahjong')
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-      <div className="grid grid-cols-3 grid-rows-3 gap-3 w-full h-full p-4">
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-40">
+      <div className="grid grid-cols-3 grid-rows-3 gap-3 w-[70%] h-[70%] bg-blue-500/10">
         {/* Top row - Player at seat 3 */}
         <div className="col-start-2 row-start-1 flex flex-wrap gap-2 justify-center items-start">
           {eventsByPosition[3].map(event => (
