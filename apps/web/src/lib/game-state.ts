@@ -44,12 +44,24 @@ export async function getGameState(gameId: string) {
 
   const currentHand = handsInRound[0]
 
-  const events = []
+  // Get events from CURRENT hand only (not all hands in round)
+  const currentHandEvents = currentHand
+    ? await db.select().from(schema.handEvents).where(eq(schema.handEvents.handId, currentHand.id))
+    : []
+
+  // Map to simple structure for frontend
+  const events = currentHandEvents.map(ev => ({
+    playerId: ev.playerId,
+    type: ev.type,
+  }))
+
+  // Also get all events with score changes for score calculation
+  const allRoundEvents = []
   for (const h of handsInRound) {
     const handEvents = await db.select().from(schema.handEvents).where(eq(schema.handEvents.handId, h.id))
     for (const ev of handEvents) {
       const sc = await db.select().from(schema.scoreChanges).where(eq(schema.scoreChanges.eventId, ev.id))
-      events.push({ ...ev, scoreChanges: sc })
+      allRoundEvents.push({ ...ev, scoreChanges: sc })
     }
   }
 
@@ -69,9 +81,9 @@ export async function getGameState(gameId: string) {
     }
   }
 
-  // Round scores (current round)
+  // Round scores (current round) - use all events in round
   const roundScores: Record<string, number> = {}
-  for (const ev of events) {
+  for (const ev of allRoundEvents) {
     for (const s of ev.scoreChanges) {
       roundScores[s.playerId] = (roundScores[s.playerId] || 0) + s.amount
     }

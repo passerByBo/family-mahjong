@@ -76,6 +76,8 @@ export default function GamePage() {
       const res = await fetch(`/api/games/${gameId}`)
       if (res.ok) {
         const data: GameData = await res.json()
+        console.log('🔍 fetchGameState - API response:', data)
+        console.log('🔍 fetchGameState - data.events:', data.events)
         setGameData(data)
 
         // Populate handEvents from API response
@@ -103,7 +105,10 @@ export default function GamePage() {
             }
           })
 
+          console.log('🔍 fetchGameState - Setting handEvents:', events)
           setHandEvents(events)
+        } else {
+          console.log('🔍 fetchGameState - No events to display')
         }
 
         if (data.game.status === 'finished') {
@@ -124,9 +129,11 @@ export default function GamePage() {
     if (gameData?.currentHand?.id) {
       if (currentHandId === '') {
         // First load - just set the ID without clearing
+        console.log('🔍 useEffect - First load, setting currentHandId:', gameData.currentHand.id)
         setCurrentHandId(gameData.currentHand.id)
       } else if (gameData.currentHand.id !== currentHandId) {
         // Hand ID changed - clear badges and update ID
+        console.log('🔍 useEffect - Hand changed from', currentHandId, 'to', gameData.currentHand.id, '- clearing badges')
         setCurrentHandId(gameData.currentHand.id)
         setHandEvents([])
       }

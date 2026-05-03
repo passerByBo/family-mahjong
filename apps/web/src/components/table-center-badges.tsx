@@ -15,7 +15,13 @@ interface TableCenterBadgesProps {
 }
 
 export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProps) {
-  if (handEvents.length === 0) return null
+  console.log('🔍 TableCenterBadges - Received handEvents:', handEvents)
+  console.log('🔍 TableCenterBadges - Received players:', players)
+
+  if (handEvents.length === 0) {
+    console.log('🔍 TableCenterBadges - No events, returning null')
+    return null
+  }
 
   // Group events by player seat position
   const eventsByPosition: Record<number, HandEvent[]> = {
@@ -27,10 +33,13 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
 
   handEvents.forEach(event => {
     const player = players.find(p => p.name === event.playerName)
+    console.log('🔍 TableCenterBadges - Event:', event, 'matched player:', player)
     if (player) {
       eventsByPosition[player.seatPosition].push(event)
     }
   })
+
+  console.log('🔍 TableCenterBadges - Events by position:', eventsByPosition)
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
