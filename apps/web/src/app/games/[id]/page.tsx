@@ -77,6 +77,35 @@ export default function GamePage() {
       if (res.ok) {
         const data: GameData = await res.json()
         setGameData(data)
+
+        // Populate handEvents from API response
+        if (data.events && data.events.length > 0) {
+          const players = data.gamePlayers.filter(gp => gp.isActive)
+          const dealerId = data.currentHand?.dealerId || ''
+
+          const events: HandEvent[] = data.events.map((ev, index) => {
+            const playerName = players.find(p => p.playerId === ev.playerId)?.name || '未知'
+            const isDealer = ev.playerId === dealerId
+
+            let badgeType: EventBadgeType
+            if (ev.type === 'win') {
+              badgeType = isDealer ? 'dealer-win' : 'win'
+            } else if (ev.type === 'self_draw') {
+              badgeType = isDealer ? 'dealer-self-draw' : 'self-draw'
+            } else {
+              badgeType = 'kong'
+            }
+
+            return {
+              id: `${Date.now()}-${index}`,
+              type: badgeType,
+              playerName,
+            }
+          })
+
+          setHandEvents(events)
+        }
+
         if (data.game.status === 'finished') {
           router.replace(`/games/${gameId}/summary`)
         }
