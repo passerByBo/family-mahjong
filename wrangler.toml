@@ -6,3 +6,4 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "family-mahjong"
 database_id = "b0d816bf-4bb8-4843-9c0a-a6248af2d74e"
+migrations_dir = "apps/web/src/lib/db/migrations"
