@@ -59,7 +59,6 @@ export default function GamePage() {
     onConfirm?: () => void
     onCancel?: () => void
   } | null>(null)
-  const [currentHandId, setCurrentHandId] = useState<string>('')
 
   // Round summary state
   const [roundSummaryOpen, setRoundSummaryOpen] = useState(false)
@@ -125,20 +124,27 @@ export default function GamePage() {
   useEffect(() => { fetchGameState() }, [fetchGameState])
 
   // Clear hand events only when hand ID actually changes (new hand starts)
+  // Track by hand number instead of hand ID to avoid false positives
+  const [currentHandNumber, setCurrentHandNumber] = useState<number>(0)
+
   useEffect(() => {
-    if (gameData?.currentHand?.id) {
-      if (currentHandId === '') {
-        // First load - just set the ID without clearing
-        console.log('🔍 useEffect - First load, setting currentHandId:', gameData.currentHand.id)
-        setCurrentHandId(gameData.currentHand.id)
-      } else if (gameData.currentHand.id !== currentHandId) {
-        // Hand ID changed - clear badges and update ID
-        console.log('🔍 useEffect - Hand changed from', currentHandId, 'to', gameData.currentHand.id, '- clearing badges')
-        setCurrentHandId(gameData.currentHand.id)
+    if (gameData?.currentHand) {
+      const newHandNumber = gameData.currentHand.number
+
+      if (currentHandNumber === 0) {
+        // First load - just set the number without clearing
+        console.log('🔍 useEffect - First load, setting currentHandNumber:', newHandNumber)
+        setCurrentHandNumber(newHandNumber)
+      } else if (newHandNumber !== currentHandNumber) {
+        // Hand number changed - clear badges and update number
+        console.log('🔍 useEffect - Hand changed from', currentHandNumber, 'to', newHandNumber, '- clearing badges')
+        setCurrentHandNumber(newHandNumber)
         setHandEvents([])
+      } else {
+        console.log('🔍 useEffect - Same hand number', newHandNumber, '- keeping badges:', handEvents.length)
       }
     }
-  }, [gameData?.currentHand?.id, currentHandId])
+  }, [gameData?.currentHand?.number, currentHandNumber, handEvents.length])
 
   
 
@@ -187,7 +193,12 @@ export default function GamePage() {
           type: 'kong',
           playerName,
         }
-        setHandEvents(prev => [...prev, newEvent])
+        console.log('✅ Kong - Adding badge to handEvents:', newEvent)
+        setHandEvents(prev => {
+          const updated = [...prev, newEvent]
+          console.log('✅ Kong - Updated handEvents:', updated)
+          return updated
+        })
         await handlePostAction()
       }
     } finally {
@@ -244,7 +255,12 @@ export default function GamePage() {
               type: badgeType,
               playerName,
             }
-            setHandEvents(prev => [...prev, newEvent])
+            console.log('✅ Win/SelfDraw - Adding badge to handEvents:', newEvent)
+            setHandEvents(prev => {
+              const updated = [...prev, newEvent]
+              console.log('✅ Win/SelfDraw - Updated handEvents:', updated)
+              return updated
+            })
             await handlePostAction()
           }
         } finally {
@@ -261,9 +277,12 @@ export default function GamePage() {
 
   const handlePostAction = async () => {
     const prevRound = gameData?.currentRound
+    console.log('🔍 handlePostAction - Fetching updated game data...')
     const res = await fetch(`/api/games/${gameId}`)
     if (res.ok) {
       const newData: GameData = await res.json()
+      console.log('🔍 handlePostAction - Received new data, hand number:', newData.currentHand?.number)
+      console.log('🔍 handlePostAction - Current handEvents before setGameData:', handEvents.length)
       setGameData(newData)
       if (prevRound && newData.currentRound && newData.currentRound.number > prevRound.number) {
         // Round ended - fetch complete scores for the finished round
