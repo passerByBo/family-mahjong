@@ -11,34 +11,34 @@ interface EventBadgeProps {
   className?: string
 }
 
-// Mahjong tile styling configuration
+// Mahjong tile styling configuration - simplified with single characters
 const tileConfig: Record<
   EventBadgeType,
-  { borderColor: string; textColor: string; label: string }
+  { bgColor: string; textColor: string; label: string }
 > = {
   'dealer-win': {
-    borderColor: 'border-yellow-500',
-    textColor: 'text-yellow-600',
+    bgColor: 'bg-yellow-500',
+    textColor: 'text-white',
     label: '庄胡',
   },
   win: {
-    borderColor: 'border-green-500',
-    textColor: 'text-green-600',
-    label: '普通胡',
+    bgColor: 'bg-green-500',
+    textColor: 'text-white',
+    label: '胡',
   },
   'dealer-self-draw': {
-    borderColor: 'border-blue-500',
-    textColor: 'text-blue-600',
-    label: '庄自摸',
+    bgColor: 'bg-blue-500',
+    textColor: 'text-white',
+    label: '庄炸',
   },
   'self-draw': {
-    borderColor: 'border-purple-500',
-    textColor: 'text-purple-600',
-    label: '普通自摸',
+    bgColor: 'bg-purple-500',
+    textColor: 'text-white',
+    label: '炸',
   },
   kong: {
-    borderColor: 'border-orange-500',
-    textColor: 'text-orange-600',
+    bgColor: 'bg-orange-500',
+    textColor: 'text-white',
     label: '杠',
   },
 }
@@ -47,31 +47,22 @@ export function EventBadge({ type, playerName, size = 'default', className }: Ev
   const config = tileConfig[type]
   const isSmall = size === 'sm'
 
-  // Split label into characters for vertical display
-  const labelChars = config.label.split('')
-
   return (
     <div
       className={cn(
-        'relative inline-flex flex-col items-center justify-center',
-        'bg-gradient-to-br from-gray-50 to-white',
-        'border-[3px] rounded-sm shadow-[0_4px_12px_rgba(0,0,0,0.4)]',
-        'font-bold leading-tight',
+        'relative inline-flex items-center justify-center',
+        'border-2 rounded-sm shadow-sm',
+        'font-bold',
         'pointer-events-auto',
-        // Size variants - mahjong tile proportions (3:4 ratio) - increased size for better visibility
-        isSmall ? 'w-12 h-16 text-sm gap-0.5' : 'w-14 h-[4.5rem] text-base gap-1',
-        config.borderColor,
+        // Compact mahjong tile - single character display
+        isSmall ? 'w-8 h-11 text-base' : 'w-10 h-14 text-lg',
+        config.bgColor,
         config.textColor,
         className
       )}
       title={playerName}
     >
-      {/* Vertical text layout */}
-      {labelChars.map((char, index) => (
-        <span key={index} className="block">
-          {char}
-        </span>
-      ))}
+      {config.label}
     </div>
   )
 }
