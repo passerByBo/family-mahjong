@@ -121,13 +121,6 @@ export function MahjongTable({
           </div>
         </div>
 
-        {/* Center badges */}
-        {gameStatus === 'playing' && handEvents && handEvents.length > 0 && (
-          <>
-            {console.log('🔍 MahjongTable - Rendering TableCenterBadges with', handEvents.length, 'events:', handEvents)}
-            <TableCenterBadges handEvents={handEvents} players={players} />
-          </>
-        )}
 
         {/* Top player */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2">
