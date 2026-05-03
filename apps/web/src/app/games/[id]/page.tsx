@@ -169,21 +169,37 @@ export default function GamePage() {
 
   const handlePostAction = async () => {
     const prevRound = gameData?.currentRound
-    const prevScores = gameData?.roundScores || {}
-    const prevEvents = gameData?.events || []
     const res = await fetch(`/api/games/${gameId}`)
     if (res.ok) {
       const newData: GameData = await res.json()
       setGameData(newData)
       if (prevRound && newData.currentRound && newData.currentRound.number > prevRound.number) {
-        setPrevRoundNumber(prevRound.number)
-        setPrevRoundScores(Object.entries(prevScores).map(([pid, amt]) => ({
-          playerId: pid,
-          name: newData.gamePlayers.find(gp => gp.playerId === pid)?.name || '未知',
-          amount: amt,
-        })))
-        setPrevRoundEvents(prevEvents.map(e => ({ playerId: e.playerId, type: e.type })))
-        setRoundSummaryOpen(true)
+        // Round ended - fetch complete scores for the finished round
+        const roundRes = await fetch(`/api/games/${gameId}/rounds/${prevRound.id}`)
+        if (roundRes.ok) {
+          const roundData = await roundRes.json()
+          const roundScores: Record<string, number> = {}
+          const roundEvents: { playerId: string; type: string }[] = []
+
+          // Calculate total scores and collect events from all hands in the finished round
+          for (const hand of roundData.hands) {
+            for (const ev of hand.events) {
+              roundEvents.push({ playerId: ev.playerId, type: ev.type })
+              for (const sc of ev.scoreChanges) {
+                roundScores[sc.playerId] = (roundScores[sc.playerId] || 0) + sc.amount
+              }
+            }
+          }
+
+          setPrevRoundNumber(prevRound.number)
+          setPrevRoundScores(Object.entries(roundScores).map(([pid, amt]) => ({
+            playerId: pid,
+            name: newData.gamePlayers.find(gp => gp.playerId === pid)?.name || '未知',
+            amount: amt,
+          })))
+          setPrevRoundEvents(roundEvents)
+          setRoundSummaryOpen(true)
+        }
       }
     }
   }
