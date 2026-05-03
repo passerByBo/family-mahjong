@@ -42,8 +42,8 @@ export function TableCenterBadges({ handEvents, players }: TableCenterBadgesProp
   console.log('🔍 TableCenterBadges - Events by position:', eventsByPosition)
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <div className="grid grid-cols-3 grid-rows-3 gap-2 w-full h-full p-4">
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+      <div className="grid grid-cols-3 grid-rows-3 gap-3 w-full h-full p-4">
         {/* Top row - Player at seat 3 */}
         <div className="col-start-2 row-start-1 flex flex-wrap gap-1 justify-center items-start">
           {eventsByPosition[3].map(event => (

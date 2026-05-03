@@ -55,10 +55,11 @@ export function EventBadge({ type, playerName, size = 'default', className }: Ev
       className={cn(
         'relative inline-flex flex-col items-center justify-center',
         'bg-gradient-to-br from-gray-50 to-white',
-        'border-2 rounded-sm shadow-md',
+        'border-[3px] rounded-sm shadow-[0_4px_12px_rgba(0,0,0,0.4)]',
         'font-bold leading-tight',
-        // Size variants - mahjong tile proportions (3:4 ratio)
-        isSmall ? 'w-8 h-11 text-[10px] gap-0' : 'w-10 h-14 text-xs gap-0.5',
+        'pointer-events-auto',
+        // Size variants - mahjong tile proportions (3:4 ratio) - increased size for better visibility
+        isSmall ? 'w-12 h-16 text-sm gap-0.5' : 'w-14 h-[4.5rem] text-base gap-1',
         config.borderColor,
         config.textColor,
         className
