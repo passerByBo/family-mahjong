@@ -2,6 +2,7 @@
 
 import { PlayerSeat } from '@/components/player-seat'
 import { EmptySeat } from '@/components/empty-seat'
+import { TableCenterBadges } from '@/components/table-center-badges'
 import { type HandEvent } from './event-badge-container'
 
 interface Player {
@@ -80,7 +81,6 @@ export function MahjongTable({
       )
     }
 
-    const playerEvents = handEvents?.filter(e => e.playerName === player.name) || []
     const isLoadingPlayer = loadingPlayerId === player.id
 
     return (
@@ -97,7 +97,6 @@ export function MahjongTable({
         onSwap={onSwapPlayer && gameStatus === 'playing' ? () => onSwapPlayer(player.id) : undefined}
         actionLoading={actionLoading}
         loadingAction={isLoadingPlayer ? loadingAction : undefined}
-        handEvents={playerEvents}
       />
     )
   }
@@ -109,7 +108,7 @@ export function MahjongTable({
         style={{ width: 'min(90vw, calc(100dvh - 10rem))', maxWidth: '100%' }}
       >
         {/* Center info */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="text-center">
             {gameStatus === 'setup' ? (
               <div className="text-emerald-400/60 text-xs">点击 + 入座</div>
@@ -121,6 +120,11 @@ export function MahjongTable({
             )}
           </div>
         </div>
+
+        {/* Center badges */}
+        {gameStatus === 'playing' && handEvents && handEvents.length > 0 && (
+          <TableCenterBadges handEvents={handEvents} players={players} />
+        )}
 
         {/* Top player */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2">

@@ -7,6 +7,7 @@ export type EventBadgeType = 'dealer-win' | 'win' | 'dealer-self-draw' | 'self-d
 interface EventBadgeProps {
   type: EventBadgeType
   playerName: string
+  size?: 'default' | 'sm'
   className?: string
 }
 
@@ -18,20 +19,22 @@ const badgeConfig: Record<EventBadgeType, { bg: string; text: string; icon: stri
   'kong': { bg: 'bg-orange-500', text: 'text-white', icon: '🟠', label: '杠' },
 }
 
-export function EventBadge({ type, playerName, className }: EventBadgeProps) {
+export function EventBadge({ type, playerName, size = 'default', className }: EventBadgeProps) {
   const config = badgeConfig[type]
+  const isSmall = size === 'sm'
 
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium shadow-sm whitespace-nowrap',
+        'inline-flex items-center gap-1 rounded-full font-medium shadow-sm whitespace-nowrap',
+        isSmall ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1 text-xs',
         config.bg,
         config.text,
         className
       )}
     >
-      <span className="text-[10px]">{config.icon}</span>
-      <span className="truncate max-w-[4rem]">{playerName}</span>
+      <span className={isSmall ? 'text-[8px]' : 'text-[10px]'}>{config.icon}</span>
+      <span className={cn('truncate', isSmall ? 'max-w-[3rem]' : 'max-w-[4rem]')}>{playerName}</span>
       <span className="font-semibold">{config.label}</span>
     </div>
   )

@@ -3,7 +3,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getAvatarById } from '@/lib/avatars'
 import { RefreshCw, Loader2 } from 'lucide-react'
-import { EventBadgeContainer, type HandEvent } from './event-badge-container'
 
 interface PlayerSeatProps {
   player: { id: string; name: string; avatar: string }
@@ -19,7 +18,6 @@ interface PlayerSeatProps {
   showActions?: boolean
   actionLoading?: boolean
   loadingAction?: 'kong' | 'win' | 'self_draw'
-  handEvents?: HandEvent[]
 }
 
 function formatScore(score: number): string {
@@ -42,7 +40,7 @@ const positionStyles: Record<string, string> = {
 
 export function PlayerSeat({
   player, score, totalScore, isDealer, position, onKong, onWin, onSelfDraw,
-  onRemove, onSwap, showActions, actionLoading, loadingAction, handEvents
+  onRemove, onSwap, showActions, actionLoading, loadingAction
 }: PlayerSeatProps) {
   const avatar = getAvatarById(player.avatar)
   const isVertical = position === 'bottom' || position === 'top'
@@ -88,11 +86,6 @@ export function PlayerSeat({
           <span className={`text-xs ${scoreColor(totalScore)} opacity-70`}>
             总{formatScore(totalScore)}
           </span>
-        )}
-        {handEvents && handEvents.length > 0 && (
-          <div className="mt-1">
-            <EventBadgeContainer events={handEvents} />
-          </div>
         )}
         {showActions && (onKong || onWin || onSelfDraw) && (
           <div className={`flex gap-1.5 mt-1.5 ${isVertical ? 'flex-row' : 'flex-col'}`}>

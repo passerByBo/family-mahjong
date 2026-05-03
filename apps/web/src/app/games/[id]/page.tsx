@@ -138,7 +138,14 @@ export default function GamePage() {
         body: JSON.stringify({ type: 'kong', playerId }),
       })
       if (res.ok) {
-        await showEventVisualization('kong', playerId)
+        // Add badge directly to state without showing second popup
+        const playerName = activePlayers.find(p => p.id === playerId)?.name || '未知'
+        const newEvent: HandEvent = {
+          id: `${Date.now()}-${Math.random()}`,
+          type: 'kong',
+          playerName,
+        }
+        setHandEvents(prev => [...prev, newEvent])
         await handlePostAction()
       }
     } finally {
@@ -189,7 +196,13 @@ export default function GamePage() {
             body: JSON.stringify({ type, playerId }),
           })
           if (res.ok) {
-            await showEventVisualization(type, playerId)
+            // Add badge directly to state without showing second popup
+            const newEvent: HandEvent = {
+              id: `${Date.now()}-${Math.random()}`,
+              type: badgeType,
+              playerName,
+            }
+            setHandEvents(prev => [...prev, newEvent])
             await handlePostAction()
           }
         } finally {
@@ -203,55 +216,6 @@ export default function GamePage() {
       }
     })
   }
-
-  const showEventVisualization = async (type: EventType, playerId: string) => {
-    if (!gameData) return
-
-    const playerName = activePlayers.find(p => p.id === playerId)?.name || '未知'
-    const isDealer = playerId === dealerId
-
-    // Determine badge type
-    let badgeType: EventBadgeType
-    if (type === 'kong') {
-      badgeType = 'kong'
-    } else if (type === 'win') {
-      badgeType = isDealer ? 'dealer-win' : 'win'
-    } else {
-      badgeType = isDealer ? 'dealer-self-draw' : 'self-draw'
-    }
-
-    // Calculate score changes
-    const scoreChanges = calculateScore({
-      eventType: type,
-      playerId,
-      dealerId,
-      allPlayerIds: activePlayers.map(p => p.id),
-    }).map(sc => ({
-      playerId: sc.playerId,
-      playerName: activePlayers.find(p => p.id === sc.playerId)?.name || '未知',
-      amount: sc.amount,
-    }))
-
-    // Show floating card
-    setFloatingEvent({ type: badgeType, playerName, scoreChanges })
-
-    // Wait for floating card to complete (will be cleared by onComplete)
-  }
-
-  const handleFloatingCardComplete = () => {
-    if (floatingEvent) {
-      // Add to hand events
-      const newEvent: HandEvent = {
-        id: `${Date.now()}-${Math.random()}`,
-        type: floatingEvent.type,
-        playerName: floatingEvent.playerName,
-      }
-      setHandEvents(prev => [...prev, newEvent])
-    }
-    setFloatingEvent(null)
-  }
-
-  
 
   const handlePostAction = async () => {
     const prevRound = gameData?.currentRound
@@ -448,7 +412,6 @@ export default function GamePage() {
           countdown={floatingEvent.countdown}
           onConfirm={floatingEvent.onConfirm}
           onCancel={floatingEvent.onCancel}
-          onComplete={handleFloatingCardComplete}
         />
       )}
 
